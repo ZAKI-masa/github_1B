@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブロック崩しゲーム</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        canvas{
+            background: #eee;
+            display: red;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
+
+
+    <script>
+        const canvas=document.getElementById("myCanvas");
+        const ctx=canvas.getContext("2d");//2D 描画コンテキストは実際にキャンバスに描画するために使うツール
+        //ボールの開始位置変数
+        let x=canvas.width/2;
+        let y=canvas.height-30;
+
+        //ボールの速度を決める変数
+        let dx = 2;
+        let dy = -2;
+        //ボールの半径
+        const ballRadius = 10;
+        
+        //パドルの幅とx軸上の開始地点を定義
+        const paddleHeight=10;
+        const paddleWidth=75;
+        let paddlex=(canvas.width-paddleWidth)/2;
+
+        //
+        let rightPressed=false;
+        let leftPressed=false;
+
+        //行と列の数
+        const brickRowCount = 3;
+        const brickColumnCount = 5;
+
+        //ブロックの幅と高さ
+        const brickWidth = 75;
+        const brickHeight = 20;
+
+        //ブロック同士が結合しないように隙間を作る
+        const brickPadding = 10
+        ;
+        //キャンバスの端に描画されないようにするための上端、左端からの相対位置を定義しました。
+        const brickOffsetTop = 30;
+        const brickOffsetLeft = 30;
+        const biricks=[];
+        for (let c=0; c<brickColumnCount; c++){
+            //bricksのからの配列にc列ほどさらにからの配列を作る
+            bricks[c]=[];
+            for (let r=0; r<brickRowCount; r++){
+                //2階層目の配列は行を意味しており1列目の1行目のブロックなどそれぞれのブロックのキャンバス内での座標を設定
+                bricks[c][r]={ x:0,y:0 };
+            }
+        }
+
+        document.addEventListener('keydown',keyDownHandler,false);//1 keydownイベントが発生した時keyDownHandler関数が実行される→ハンドラへの入り口
+        document.addEventListener("keyup",keyUpHandler,false);
+
+        const interval=setInterval(draw,10);
+
+        //2 右左ボタンがクリックされた時にPressedをtrue　離した時にfalse ボタンがクリックされてるかどうかの判定をしてる
+        function keyDownHandler(e){
+            if (e.key==="Right" || e.key==="ArrowRight"){
+                rightPressed=true;
+            } else if(e.key==="Left" || e.key==="ArrowLeft"){
+                leftPressed=true;
+            }
+        }
+
+        function keyUpHandler(e){
+            if (e.key==="Right"||e.key==="ArrowRight"){
+                rightPressed=false;
+            } else if (e.key==="Left"||e.key==="ArrowLeft"){
+                leftPressed=false;
+            }
+
+        }
+
+
+
+        function drawball(){
+
+            ctx.beginPath();
+            ctx.arc(x,y,ballRadius,0, Math.PI * 2);
+            ctx.fillStyle='#0095DD';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPaddle(){
+            ctx.beginPath();
+            ctx.rect(paddlex,canvas.height-paddleHeight,paddleWidth,paddleHeight);
+            ctx.fillStyle="#0095DD";
+            ctx.fill();
+            ctx.closePath();
+
+        }
+        function drawbricks(){
+            //全てのブロック全てのブロックを通してループする(c行目のr列目のブロック)を作成し描画　問題は各ブロックの座標が被さってること
+            for (let c=0; c<brickColumnCount; c++){
+                for (let r=0; r<brickRowCount; r++){
+                    
+                    bricks[c][r].x=0;
+                    bricks[c][r].y=0
+                    ctx.beginPath();
+                    ctx.rect(0,0,brickWidth,brickHeight);
+                    ctx.fillstyle="#0095DD";
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+
+            
+        }
+
+        function draw(){
+            //
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            drawball();
+            drawPaddle();
+            //ボールの速度
+            x +=dx;
+            y +=dy;
+            //各辺より半径先に衝突地点を設定する
+            if (y+dy<ballRadius){
+                dy=-dy
+            } else if(y+dy>canvas.height-ballRadius){
+                //ボールがパドルの中に位置する場合　反転
+                if(x>paddlex && x<paddlex+paddleWidth ){
+                    dy=-dy
+                }
+                //ボールが下に落ちた時　ゲームオーバー
+                else{
+                    alert("Gema Over!");
+                    document.location.reload();
+                    clearInterval(interval);
+                }
+            }
+
+            if (x+dx<ballRadius || x+dx>canvas.width-ballRadius){
+                dx=-dx
+            }
+
+            //3 クリックされてる時その方向に7移動させる　またパドルの限界幅を指定 (流れ→イベント発生→ハンドラ関数→真偽値を判定しdarwにより描画)
+            
+            if (rightPressed){
+                //True→min(1,2)小さい方の引数を実行  max(1,2)大きい方を実行 
+                //パドルは左端が判定されるため、パドルの左端が画面のギリギリに来た時を左右それぞれ計算し第２引数に設定してあげることによってpaddlexの変化が止まる
+                paddlex=Math.min(paddlex+7,canvas.width-paddleWidth);
+            } else if (leftPressed){
+                paddlex=Math.max(paddlex-7,0);
+            }
+        }
+
+        
+    </script>
+    <br>
+    <a href="index.html">移動</a>
+</body>
+</html>
