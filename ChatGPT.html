@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ブロック崩しゲーム メモ：関数・メソッド一覧</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1, h2 {
+      margin-bottom: 0.4em;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 24px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      font-size: 14px;
+      vertical-align: top;
+    }
+    th {
+      background: #e0e0e0;
+    }
+    code {
+      background: #eee;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ブロック崩しゲーム メモ：関数・メソッド一覧</h1>
+
+  <h2>ブラウザ組み込みの関数・メソッド・プロパティ</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>名前</th>
+        <th>種類</th>
+        <th>用途・役割</th>
+        <th>メモ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>document.getElementById()</code></td>
+        <td>DOMメソッド</td>
+        <td>IDでHTML要素（ここでは <code>&lt;canvas&gt;</code>）を取得する。</td>
+        <td>ゲームで使うキャンバス要素を JS 側に持ってくる入口。</td>
+      </tr>
+      <tr>
+        <td><code>canvas.getContext("2d")</code></td>
+        <td>Canvasメソッド</td>
+        <td>2D描画用のコンテキスト（<code>ctx</code>）を取得する。</td>
+        <td>図形描画の全てのメソッドはこの <code>ctx</code> 経由で呼ぶ。</td>
+      </tr>
+      <tr>
+        <td><code>document.addEventListener()</code></td>
+        <td>DOMメソッド</td>
+        <td>指定したイベント（<code>"keydown"</code>, <code>"keyup"</code>）が起きたとき、ハンドラ関数を実行する。</td>
+        <td>第1引数はイベント名、第2引数は呼び出す関数、第3引数は通常 <code>false</code>（バブリング）。</td>
+      </tr>
+      <tr>
+        <td><code>setInterval(func, ms)</code></td>
+        <td>タイマー関数</td>
+        <td><code>ms</code> ミリ秒ごとに <code>func</code> を繰り返し実行する。</td>
+        <td>戻り値としてタイマーIDを返し、それを <code>clearInterval()</code> に渡して止める。</td>
+      </tr>
+      <tr>
+        <td><code>clearInterval(id)</code></td>
+        <td>タイマー関数</td>
+        <td><code>setInterval</code> で登録したタイマー（アニメーションループ）を停止する。</td>
+        <td>ゲームオーバー時にループを終了するために使用。</td>
+      </tr>
+      <tr>
+        <td><code>ctx.beginPath()</code></td>
+        <td>Canvasメソッド</td>
+        <td>新しいパス（図形）を描画し始める準備をする。</td>
+        <td>図形を描く前に呼ぶのが基本。</td>
+      </tr>
+      <tr>
+        <td><code>ctx.arc(x, y, radius, 0, Math.PI * 2)</code></td>
+        <td>Canvasメソッド</td>
+        <td>中心 <code>(x, y)</code>、半径 <code>radius</code> の円（ここではボール）を定義する。</td>
+        <td>ボールは中心座標＋半径で位置・当たり判定を考える。</td>
+      </tr>
+      <tr>
+        <td><code>ctx.rect(x, y, w, h)</code></td>
+        <td>Canvasメソッド</td>
+        <td>左上 <code>(x, y)</code> を基準に幅 <code>w</code>・高さ <code>h</code> の四角形（パドル）を定義する。</td>
+        <td>パドルは左上座標＋幅高さで位置を管理する。</td>
+      </tr>
+      <tr>
+        <td><code>ctx.fillStyle</code></td>
+        <td>Canvasプロパティ</td>
+        <td><code>fill()</code> で塗りつぶすときの色を設定する。</td>
+        <td>文字列（<code>"#0095DD"</code> などの色コード）を代入して使う。</td>
+      </tr>
+      <tr>
+        <td><code>ctx.fill()</code></td>
+        <td>Canvasメソッド</td>
+        <td>現在のパス（<code>arc</code> や <code>rect</code>）を <code>fillStyle</code> の色で塗りつぶす。</td>
+        <td>ボールやパドルを実際に描画する処理。</td>
+      </tr>
+      <tr>
+        <td><code>ctx.closePath()</code></td>
+        <td>Canvasメソッド</td>
+        <td>現在のパスを閉じる。</td>
+        <td>必須ではないが、図形ごとに区切る意味でよく使う。</td>
+      </tr>
+      <tr>
+        <td><code>ctx.clearRect(0, 0, canvas.width, canvas.height)</code></td>
+        <td>Canvasメソッド</td>
+        <td>キャンバス全体の描画内容を消去する。</td>
+        <td>毎フレーム最初に呼ぶことで「軌跡」を消し、アニメーションにする。</td>
+      </tr>
+      <tr>
+        <td><code>Math.min(a, b)</code></td>
+        <td>Mathメソッド</td>
+        <td><code>a</code> と <code>b</code> のうち小さい方を返す。</td>
+        <td>パドルが右端を超えないように、最大位置を <code>canvas.width - paddleWidth</code> に制限する。</td>
+      </tr>
+      <tr>
+        <td><code>Math.max(a, b)</code></td>
+        <td>Mathメソッド</td>
+        <td><code>a</code> と <code>b</code> のうち大きい方を返す。</td>
+        <td>パドルが左端より左に行かないように、最小位置を <code>0</code> に制限する。</td>
+      </tr>
+      <tr>
+        <td><code>alert()</code></td>
+        <td>ウィンドウ関数</td>
+        <td>ポップアップダイアログでメッセージを表示する。</td>
+        <td>ここではゲームオーバー時に「Game Over!」を見せるために使用。</td>
+      </tr>
+      <tr>
+        <td><code>document.location.reload()</code></td>
+        <td>DOMメソッド</td>
+        <td>現在のページをリロードして、ゲームを最初の状態に戻す。</td>
+        <td>ゲームオーバー後のリセット処理。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>このファイル内で自分が定義した関数</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>関数名</th>
+        <th>役割</th>
+        <th>主な中身</th>
+        <th>メモ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>keyDownHandler(e)</code></td>
+        <td>キー押下時の処理</td>
+        <td><code>e.key</code> を見て、右矢印なら <code>rightPressed = true</code>、左矢印なら <code>leftPressed = true</code> にする。</td>
+        <td>「押している間、どちら向きに動かすか」を示すフラグを立てる役割。</td>
+      </tr>
+      <tr>
+        <td><code>keyUpHandler(e)</code></td>
+        <td>キーを離したときの処理</td>
+        <td>右矢印キーを離したら <code>rightPressed = false</code>、左矢印キーを離したら <code>leftPressed = false</code> にする。</td>
+        <td>フラグを下ろしてパドルの移動を止める。</td>
+      </tr>
+      <tr>
+        <td><code>drawball()</code></td>
+        <td>ボールの描画</td>
+        <td><code>ctx.arc(x, y, ballRadius, ...)</code> で円を定義し、<code>fill()</code> で塗りつぶして描画。</td>
+        <td>位置はグローバル変数 <code>x</code>, <code>y</code> を使用。</td>
+      </tr>
+      <tr>
+        <td><code>drawPaddle()</code></td>
+        <td>パドルの描画</td>
+        <td><code>ctx.rect(paddlex, canvas.height - paddleHeight, paddleWidth, paddleHeight)</code> で四角形を描画。</td>
+        <td>パドルの左上座標は <code>paddlex</code> と <code>canvas.height - paddleHeight</code>。</td>
+      </tr>
+      <tr>
+        <td><code>draw()</code></td>
+        <td>メイン描画ループ</td>
+        <td>
+          <ul>
+            <li><code>clearRect()</code> でキャンバス消去</li>
+            <li><code>drawball()</code>, <code>drawPaddle()</code> を呼んで描画</li>
+            <li><code>x += dx; y += dy;</code> でボール位置更新</li>
+            <li>上下左右の壁との当たり判定（反射・ゲームオーバー）</li>
+            <li><code>rightPressed / leftPressed</code> を見てパドル位置更新</li>
+          </ul>
+        </td>
+        <td><code>setInterval(draw, 10)</code> によって 10ms ごとに呼ばれるゲームの心臓部。</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
